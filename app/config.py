@@ -1,4 +1,3 @@
-
 import os
 from datetime import timedelta
 
@@ -14,7 +13,10 @@ class Config:
 
     db_url = os.environ.get("DATABASE_URL")
 
-    # Si DATABASE_URL pide PostgreSQL pero psycopg2 no esta instalado localmente, usa SQLite automáticamente
+    # Corrección automática para las URLs de PostgreSQL de Render (postgres:// -> postgresql://)
+    if db_url and db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+
     if db_url and db_url.startswith("postgresql"):
         try:
             import psycopg2
