@@ -1,26 +1,42 @@
-# 🔐 Flask REST API - Authentication & Role-Based Access Control (RBAC)
+# 📦 Enterprise Logistics & Auth REST API (Python, Flask, Docker)
 
-Una API REST profesional desarrollada en **Python (Flask)**, autenticación con **JWT**, control de acceso basado en roles (**RBAC**), persistencia con **PostgreSQL**, contenedorización completa con **Docker / Docker Compose** e integración continua con **GitHub Actions**.
+![Build Status](https://github.com/tu-usuario/flask-rbac-api/actions/workflows/ci.yml/badge.svg)
+![Python Version](https://img.shields.io/badge/python-3.11-blue.svg)
+![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
----
+API RESTful de nivel empresarial para **Gestión de Autenticación, RBAC y Logística de Envíos en Tiempo Real**.
 
-## 🚀 Características del Proyecto
-
-- **Autenticación JWT segura**: Emisión de JSON Web Tokens con firma HS256 y expiración configurable.
-- **Control de Acceso basado en Roles (RBAC)**: Decoradores personalizados `@token_required` y `@roles_required('ADMIN', ...)` para proteger rutas.
-- **Seguridad en Contraseñas**: Hashing seguro mediante `werkzeug.security`.
-- **Persistencia Múltiple**: Soporte para PostgreSQL en Docker y SQLite en desarrollo/pruebas.
-- **Pruebas Automatizadas**: Suite completa con `pytest` y reporte de cobertura de código (`pytest-cov`).
-- **Contenedores Optimizados**: `Dockerfile` con usuario no-root por seguridad y servidor de producción `Gunicorn`.
-- **Pipeline de CI/CD**: Workflow de GitHub Actions que ejecuta pruebas y valida la construcción de la imagen Docker en cada commit/PR.
+🌐 **Swagger UI Live Demo**: [https://tu-servicio.onrender.com/apidocs](https://tu-servicio.onrender.com/apidocs)
 
 ---
 
-## 🛠️ Instalación y Ejecución Local
+## 🛠️ Tecnologías y Arquitectura
 
-### Opción 1: Con Docker Compose (Recomendado)
+- **Backend**: Python 3.11, Flask, Flask-SQLAlchemy, Marshmallow, Gunicorn
+- **Seguridad**: JWT (HS256), RBAC (Roles: `USER`, `DRIVER`, `ADMIN`), Werkzeug Password Hashing
+- **Protección & Caché**: Flask-Limiter (`429 Rate Limit`), Redis Blacklist para Logout
+- **Base de Datos**: PostgreSQL 15 (Producción), SQLite (Testing/Dev)
+- **Infraestructura**: Docker, Docker Compose, GitHub Actions (CI/CD), Render
 
-1. **Clonar el repositorio**:
-   ```bash
-   git clone [https://github.com/tu-usuario/flask-rbac-api.git](https://github.com/tu-usuario/flask-rbac-api.git)
-   cd flask-rbac-api
+---
+
+## 📡 Endpoints Principales
+
+| Módulo | Método | Ruta | Descripción | Acceso |
+|---|---|---|---|---|
+| **Auth** | `POST` | `/api/auth/register` | Registro de usuarios | Público |
+| **Auth** | `POST` | `/api/auth/login` | Login y emisión JWT | Público |
+| **Auth** | `POST` | `/api/auth/logout` | Revocación token en Redis | Bearer Token |
+| **Logística** | `POST` | `/api/shipments/` | Crear envío (Guía `TRK-...`) | Bearer Token |
+| **Logística** | `GET` | `/api/shipments/` | Listar envíos | Bearer Token |
+| **Logística** | `GET` | `/api/shipments/{trk}` | Rastreo público | Público |
+| **Logística** | `POST` | `/api/shipments/{trk}/events` | Actualizar estado/ubicación | `DRIVER` / `ADMIN` |
+
+---
+
+## 🚀 Ejecución con Docker
+
+```bash
+cp .env.example .env
+docker compose up --build
