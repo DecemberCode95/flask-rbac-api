@@ -13,7 +13,6 @@ def configure_logging(app):
 
     @app.after_request
     def log_request_info(response):
-        # Registra cada petición HTTP recibida con su IP, método, ruta y código de estado
         app.logger.info(
             f"{request.remote_addr} - {request.method} {request.path} -> {response.status_code}"
         )
@@ -24,7 +23,6 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Configurar sistema de logs
     configure_logging(app)
 
     # Configuración de Swagger UI
@@ -37,6 +35,17 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     limiter.init_app(app)
+
+    # Ruta raíz para la comprobación de estado de Render (Healthcheck)
+    @app.route("/")
+    def index():
+        return jsonify(
+            {
+                "status": "online",
+                "message": "API de Autenticación y RBAC activa",
+                "documentation": "/apidocs",
+            }
+        ), 200
 
     # --- MANEJADORES DE ERRORES CENTRALIZADOS ---
 
