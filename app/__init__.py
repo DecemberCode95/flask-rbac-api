@@ -77,7 +77,9 @@ def create_app(config_class=Config):
     from app.routes.auth import auth_bp
     from app.routes.users import users_bp
     from app.routes.shipments import shipments_bp
-
+    from app.routes.analytics import analytics_bp
+    
+    app.register_blueprint(analytics_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(shipments_bp)
