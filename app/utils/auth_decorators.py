@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import request, jsonify
 from app.utils.jwt_helper import decode_token
+from app.utils.redis_helper import is_token_blacklisted
 from app.models.user import User
 
 
@@ -15,7 +16,14 @@ def token_required(f):
                 }
             ), 401
 
-        token = auth_header.split(" ")[1]
+        token = auth_header.split(" ")
+
+        # Verificar si el token está en la lista negra (sesión cerrada)
+        if is_token_blacklisted(token):
+            return jsonify(
+                {"message": "El token ha sido revocado (sesión cerrada)"}
+            ), 401
+
         decoded = decode_token(token)
 
         if "error" in decoded:

@@ -1,3 +1,4 @@
+
 import os
 from datetime import timedelta
 
@@ -11,11 +12,25 @@ class Config:
         hours=int(os.environ.get("JWT_EXPIRATION_HOURS", 1))
     )
 
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL",
-        "sqlite:///"
-        + os.path.join(os.path.abspath(os.path.dirname(__file__)), "../app.db"),
-    )
+    db_url = os.environ.get("DATABASE_URL")
+
+    # Si DATABASE_URL pide PostgreSQL pero psycopg2 no esta instalado localmente, usa SQLite automáticamente
+    if db_url and db_url.startswith("postgresql"):
+        try:
+            import psycopg2
+
+            SQLALCHEMY_DATABASE_URI = db_url
+        except ImportError:
+            SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(
+                os.path.abspath(os.path.dirname(__file__)), "../app.db"
+            )
+    elif db_url:
+        SQLALCHEMY_DATABASE_URI = db_url
+    else:
+        SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), "../app.db"
+        )
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 

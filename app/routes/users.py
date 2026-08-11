@@ -10,6 +10,17 @@ users_bp = Blueprint("users", __name__, url_prefix="/api/users")
 @users_bp.route("/profile", methods=["GET"])
 @token_required
 def get_profile(current_user):
+    """
+    Obtener perfil del usuario autenticado
+    ---
+    tags:
+      - Usuarios
+    responses:
+      200:
+        description: Datos del perfil del usuario
+      401:
+        description: Token faltante o inválido
+    """
     return jsonify({"user": current_user.to_dict()}), 200
 
 
@@ -17,6 +28,17 @@ def get_profile(current_user):
 @token_required
 @roles_required("ADMIN")
 def list_users(current_user):
+    """
+    Listar todos los usuarios registrados (Solo Administradores)
+    ---
+    tags:
+      - Administración
+    responses:
+      200:
+        description: Lista de usuarios registrados
+      403:
+        description: Acceso denegado (Requiere rol ADMIN)
+    """
     users = User.query.all()
     return jsonify({"users": [user.to_dict() for user in users]}), 200
 
@@ -25,6 +47,33 @@ def list_users(current_user):
 @token_required
 @roles_required("ADMIN")
 def update_user_roles(current_user, user_id):
+    """
+    Actualizar los roles de un usuario (Solo Administradores)
+    ---
+    tags:
+      - Administración
+    parameters:
+      - in: path
+        name: user_id
+        type: integer
+        required: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            roles:
+              type: array
+              items:
+                type: string
+              example: ["ADMIN", "USER"]
+    responses:
+      200:
+        description: Roles actualizados exitosamente
+      404:
+        description: Usuario no encontrado
+    """
     data = request.get_json() or {}
     role_names = data.get("roles", [])
 
@@ -37,5 +86,6 @@ def update_user_roles(current_user, user_id):
     db.session.commit()
 
     return jsonify(
-        {"message": "Roles actualizados correctamente", "user": target_user.to_dict()}
+        {"message": "Roles actualizados correctamente", 
+         "user": target_user.to_dict()}
     ), 200

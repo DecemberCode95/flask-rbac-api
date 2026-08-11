@@ -11,9 +11,12 @@ services:
       - SECRET_KEY=${SECRET_KEY:-dev-secret}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-jwt-secret}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-rbac_db}
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   db:
     image: postgres:15-alpine
@@ -32,6 +35,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_rbac_cache
+    restart: always
+    ports:
+      - "6379:6379"
 
 volumes:
   postgres_data:
